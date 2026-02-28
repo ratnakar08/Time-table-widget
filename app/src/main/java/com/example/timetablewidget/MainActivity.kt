@@ -11,6 +11,7 @@ import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
@@ -40,7 +41,7 @@ class MainActivity : ComponentActivity() {
             TimeTableWidgetTheme {
                 Surface(
                     modifier = Modifier.fillMaxSize(),
-                    color = Color(0xFF0F111A)
+                    color = MaterialTheme.colorScheme.background
                 ) {
                     TimetableScreen(this)
                 }
@@ -81,18 +82,22 @@ fun TimetableScreen(context: Context) {
             Column {
                 Text(
                     text = "III B.Tech II Sem",
-                    color = Color(0xFF9FA8DA),
+                    color = MaterialTheme.colorScheme.primary,
                     fontSize = 28.sp,
                     fontWeight = FontWeight.Bold
                 )
                 Text(
                     text = "Computer Science and Engineering - Section F",
-                    color = Color.Gray,
+                    color = MaterialTheme.colorScheme.secondary,
                     fontSize = 12.sp
                 )
             }
             IconButton(onClick = { /* Save or Edit Settings */ }) {
-                Icon(Icons.Default.Edit, contentDescription = "Edit", tint = Color.Gray)
+                Icon(
+                    Icons.Default.Edit, 
+                    contentDescription = "Edit", 
+                    tint = MaterialTheme.colorScheme.secondary
+                )
             }
         }
 
@@ -101,7 +106,10 @@ fun TimetableScreen(context: Context) {
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .background(Color(0xFF161922), RoundedCornerShape(16.dp))
+                .background(
+                    MaterialTheme.colorScheme.surfaceVariant, 
+                    RoundedCornerShape(16.dp)
+                )
                 .padding(12.dp)
         ) {
             Column {
@@ -110,7 +118,7 @@ fun TimetableScreen(context: Context) {
                     Text(
                         "DAY",
                         modifier = Modifier.width(60.dp),
-                        color = Color.Gray,
+                        color = MaterialTheme.colorScheme.secondary,
                         fontSize = 10.sp,
                         fontWeight = FontWeight.Bold
                     )
@@ -121,7 +129,7 @@ fun TimetableScreen(context: Context) {
                                 modifier = Modifier
                                     .padding(horizontal = 4.dp)
                                     .width(100.dp),
-                                color = Color.Gray,
+                                color = MaterialTheme.colorScheme.secondary,
                                 fontSize = 10.sp,
                                 textAlign = TextAlign.Center
                             )
@@ -140,7 +148,7 @@ fun TimetableScreen(context: Context) {
                             Text(
                                 day,
                                 modifier = Modifier.width(60.dp),
-                                color = Color(0xFF5C6BC0),
+                                color = MaterialTheme.colorScheme.tertiary,
                                 fontSize = 12.sp,
                                 fontWeight = FontWeight.Bold
                             )
@@ -244,23 +252,25 @@ fun updateWidget(context: Context) {
 
 @Composable
 fun SubjectCard(subject: String, onClick: () -> Unit) {
+    val isDark = isSystemInDarkTheme()
+    
     val bgColor = when {
-        subject.contains("LAB") -> Color(0xFF2E3B4E)
-        subject == "LUNCH" -> Color(0xFF262930)
-        subject == "CET" -> Color(0xFF1F222C)
-        else -> Color(0xFF1F222C)
+        subject.contains("LAB") -> if (isDark) Color(0xFF2E3B4E) else Color(0xFFE3F2FD)
+        subject == "LUNCH" -> if (isDark) Color(0xFF262930) else Color(0xFFF5F5F5)
+        subject == "CET" -> if (isDark) Color(0xFF1F222C) else Color(0xFFFAFAFA)
+        else -> if (isDark) Color(0xFF1F222C) else Color(0xFFFAFAFA)
     }
     
     val textColor = when (subject) {
-        "CET" -> Color.White
-        "LUNCH" -> Color.DarkGray
-        "AI&DL" -> Color(0xFF81D4FA)
-        "OS" -> Color(0xFFFFCC80)
-        "WT" -> Color(0xFFEF9A9A)
-        "BDA" -> Color(0xFFA5D6A7)
-        "BOE" -> Color(0xFFFFAB91)
-        "CS&CL" -> Color(0xFFB39DDB)
-        else -> Color.White
+        "CET" -> if (isDark) Color.White else Color.Black
+        "LUNCH" -> Color.Gray
+        "AI&DL" -> if (isDark) Color(0xFF81D4FA) else Color(0xFF0288D1)
+        "OS" -> if (isDark) Color(0xFFFFCC80) else Color(0xFFF57C00)
+        "WT" -> if (isDark) Color(0xFFEF9A9A) else Color(0xFFD32F2F)
+        "BDA" -> if (isDark) Color(0xFFA5D6A7) else Color(0xFF388E3C)
+        "BOE" -> if (isDark) Color(0xFFFFAB91) else Color(0xFFE64A19)
+        "CS&CL" -> if (isDark) Color(0xFFB39DDB) else Color(0xFF512DA8)
+        else -> if (isDark) Color.White else Color.Black
     }
 
     Box(
