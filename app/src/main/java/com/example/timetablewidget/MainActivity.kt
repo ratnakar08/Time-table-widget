@@ -10,10 +10,11 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Edit
@@ -67,6 +68,7 @@ fun TimetableScreen(context: Context) {
         }
     }
 
+    val horizontalScrollState = rememberScrollState()
     var editingCell by remember { mutableStateOf<Pair<String, Int>?>(null) }
     var textValue by remember { mutableStateOf("") }
 
@@ -102,50 +104,54 @@ fun TimetableScreen(context: Context) {
                 .background(Color(0xFF161922), RoundedCornerShape(16.dp))
                 .padding(12.dp)
         ) {
-            LazyColumn {
-                item {
-                    Row(modifier = Modifier.fillMaxWidth()) {
-                        Text(
-                            "DAY",
-                            modifier = Modifier.width(60.dp),
-                            color = Color.Gray,
-                            fontSize = 10.sp,
-                            fontWeight = FontWeight.Bold
-                        )
-                        LazyRow {
-                            itemsIndexed(periods) { _: Int, period: String ->
-                                Text(
-                                    period,
-                                    modifier = Modifier.width(100.dp),
-                                    color = Color.Gray,
-                                    fontSize = 10.sp,
-                                    textAlign = TextAlign.Center
-                                )
-                            }
+            Column {
+                // Header Row (Fixed Vertically, Scrollable Horizontally)
+                Row(modifier = Modifier.fillMaxWidth()) {
+                    Text(
+                        "DAY",
+                        modifier = Modifier.width(60.dp),
+                        color = Color.Gray,
+                        fontSize = 10.sp,
+                        fontWeight = FontWeight.Bold
+                    )
+                    Row(modifier = Modifier.horizontalScroll(horizontalScrollState)) {
+                        periods.forEach { period ->
+                            Text(
+                                period,
+                                modifier = Modifier
+                                    .padding(horizontal = 4.dp)
+                                    .width(100.dp),
+                                color = Color.Gray,
+                                fontSize = 10.sp,
+                                textAlign = TextAlign.Center
+                            )
                         }
                     }
-                    Spacer(modifier = Modifier.height(16.dp))
                 }
+                
+                Spacer(modifier = Modifier.height(16.dp))
 
-                itemsIndexed(days) { _: Int, day: String ->
-                    Row(
-                        modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Text(
-                            day,
-                            modifier = Modifier.width(60.dp),
-                            color = Color(0xFF5C6BC0),
-                            fontSize = 12.sp,
-                            fontWeight = FontWeight.Bold
-                        )
-                        LazyRow {
-                            val dayList = schedule[day]
-                            if (dayList != null) {
-                                itemsIndexed(dayList) { index: Int, subject: String ->
-                                    SubjectCard(subject) {
-                                        editingCell = day to index
-                                        textValue = subject
+                LazyColumn {
+                    itemsIndexed(days) { _: Int, day: String ->
+                        Row(
+                            modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Text(
+                                day,
+                                modifier = Modifier.width(60.dp),
+                                color = Color(0xFF5C6BC0),
+                                fontSize = 12.sp,
+                                fontWeight = FontWeight.Bold
+                            )
+                            Row(modifier = Modifier.horizontalScroll(horizontalScrollState)) {
+                                val dayList = schedule[day]
+                                if (dayList != null) {
+                                    dayList.forEachIndexed { index, subject ->
+                                        SubjectCard(subject) {
+                                            editingCell = day to index
+                                            textValue = subject
+                                        }
                                     }
                                 }
                             }
