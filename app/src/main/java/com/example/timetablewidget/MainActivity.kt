@@ -13,8 +13,6 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -38,7 +36,8 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
-            TimeTableWidgetTheme {
+            // Set dynamicColor = false to ensure our custom theme colors are used correctly in dark/light mode
+            TimeTableWidgetTheme(dynamicColor = false) {
                 Surface(
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
@@ -112,17 +111,31 @@ fun TimetableScreen(context: Context) {
                 )
                 .padding(12.dp)
         ) {
-            Column {
-                // Header Row (Fixed Vertically, Scrollable Horizontally)
-                Row(modifier = Modifier.fillMaxWidth()) {
+            Row {
+                // Fixed column for "DAY" labels
+                Column(modifier = Modifier.width(60.dp)) {
                     Text(
                         "DAY",
-                        modifier = Modifier.width(60.dp),
                         color = MaterialTheme.colorScheme.secondary,
                         fontSize = 10.sp,
                         fontWeight = FontWeight.Bold
                     )
-                    Row(modifier = Modifier.horizontalScroll(horizontalScrollState)) {
+                    Spacer(modifier = Modifier.height(24.dp)) // Adjust spacing to match row heights
+                    days.forEach { day ->
+                        Text(
+                            day,
+                            modifier = Modifier.height(61.dp).wrapContentHeight(Alignment.CenterVertically),
+                            color = MaterialTheme.colorScheme.tertiary,
+                            fontSize = 12.sp,
+                            fontWeight = FontWeight.Bold
+                        )
+                    }
+                }
+
+                // Scrollable column for "Periods" and "Subjects"
+                Column(modifier = Modifier.horizontalScroll(horizontalScrollState)) {
+                    // Header Row: Periods
+                    Row {
                         periods.forEach { period ->
                             Text(
                                 period,
@@ -135,31 +148,18 @@ fun TimetableScreen(context: Context) {
                             )
                         }
                     }
-                }
-                
-                Spacer(modifier = Modifier.height(16.dp))
 
-                LazyColumn {
-                    itemsIndexed(days) { _: Int, day: String ->
-                        Row(
-                            modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp),
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Text(
-                                day,
-                                modifier = Modifier.width(60.dp),
-                                color = MaterialTheme.colorScheme.tertiary,
-                                fontSize = 12.sp,
-                                fontWeight = FontWeight.Bold
-                            )
-                            Row(modifier = Modifier.horizontalScroll(horizontalScrollState)) {
-                                val dayList = schedule[day]
-                                if (dayList != null) {
-                                    dayList.forEachIndexed { index, subject ->
-                                        SubjectCard(subject) {
-                                            editingCell = day to index
-                                            textValue = subject
-                                        }
+                    Spacer(modifier = Modifier.height(16.dp))
+
+                    // Subject Rows
+                    days.forEach { day ->
+                        Row(modifier = Modifier.padding(vertical = 8.dp)) {
+                            val dayList = schedule[day]
+                            if (dayList != null) {
+                                dayList.forEachIndexed { index, subject ->
+                                    SubjectCard(subject) {
+                                        editingCell = day to index
+                                        textValue = subject
                                     }
                                 }
                             }
